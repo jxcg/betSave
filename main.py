@@ -1,5 +1,5 @@
 from engine import calculate
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_dance.contrib.google import make_google_blueprint, google
 import os
 import yaml
@@ -24,32 +24,31 @@ google_blueprint = make_google_blueprint(
 
 app.register_blueprint(google_blueprint, url_prefix="/login")
 
-
-
-# Authentication
-@app.route('/login/google')
-def google_login():
+@app.route("/get_started")
+def get_started():
     if not google.authorized:
-        return redirect(url_for('google.login'))
-    
-    resp = google.get('/oauth2/v2/userinfo')
-    if resp.ok:
-        user_info = resp.json()
-        print('ok')
-        print(user_info)
-        return f"You are {user_info['name']} or {email} on Google".format(email=resp.json()['email'])
-
+        # User is not logged in, go through OAuth
+        return redirect(url_for("google.login"))
     else:
-        flash("Failed to log in with Google", category="error") 
-        return redirect(url_for('home'))
+        # User is already logged in, send them to the landing page
+        return redirect(url_for("landing_page"))
 
-@app.route("/protected")
-def protected():
+
+@app.route("/landing")
+def landing_page():
     if not google.authorized:
         return redirect(url_for("google.login"))
     # user is authorized, so proceed
-    return "This is a protected page!"
+    return "Welcome to the Landing Page!"
 
+
+@app.route("/logout")
+def logout():
+    """
+    Clear the session (so google.authorized becomes False).
+    """
+    session.clear()
+    return redirect(url_for("home"))
 
 
 ## Other Routes

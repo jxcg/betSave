@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Matched Betting Results</title>
+    <!-- Link external CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <h1>Matched Betting Results</h1>
+
+  <!-- Display cumulative profit for completed bets -->
+  <p class="cumulative-profit">
+    <strong>Total Cumulative Profits (Completed Bets):</strong> 
+    {{ total }}
+  </p>
+
+  <!-- Form to add a new bet -->
+  <form method="POST" class="bet-form">
+    <!-- DATE -->
+    <div>
+      <label for="bet_date">Date:</label>
+      <input type="date" id="bet_date" name="bet_date" />
+      <small>(Defaults to today's date if left blank)</small>
+    </div>
+
+    <!-- BET TYPE (radio buttons) -->
+    <div>
+      <label>Bet Type:</label>
+      <label>
+        <input type="radio" name="bet_type" value="Qualifying" checked> Qualifying
+      </label>
+      <label>
+        <input type="radio" name="bet_type" value="Free"> Free
+      </label>
+      <label>
+        <input type="radio" name="bet_type" value="Arb"> Arb
+      </label>
+    </div>
+
+    <!-- PROFIT/LOSS for BOOKIE -->
+    <div>
+      <label for="profit_loss_bookie">Profit/Loss (Bookie):</label>
+      <input 
+        type="number" 
+        step="0.01" 
+        id="profit_loss_bookie" 
+        name="profit_loss_bookie" 
+        placeholder="e.g. -2.00 or 3.50"
+      >
+    </div>
+
+    <!-- PROFIT/LOSS for EXCHANGE -->
+    <div>
+      <label for="profit_loss_exchange">Profit/Loss (Exchange):</label>
+      <input 
+        type="number" 
+        step="0.01" 
+        id="profit_loss_exchange" 
+        name="profit_loss_exchange" 
+        placeholder="e.g. -1.00 or 4.20"
+      >
+    </div>
+
+    <button type="submit">Add Bet</button>
+  </form>
+
+  <!-- TABLE of bets -->
+  <table class="bets-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Bet Type</th>
+        <th>Bookie P/L</th>
+        <th>Exchange P/L</th>
+        <th>Completed?</th>
+        <th>Toggle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bet in bets %}
+      <tr>
+        <td>{{ bet.bet_date }}</td>
+        <td>{{ bet.bet_type }}</td>
+        <td>{{ bet.profit_loss_bookie }}</td>
+        <td>{{ bet.profit_loss_exchange }}</td>
+        <td>{{ "Yes" if bet.is_completed else "No" }}</td>
+        <td>
+          <!-- A form posting to toggle the bet's completion status -->
+          <form action="{{ url_for('toggle_bet', bet_index=loop.index0) }}" method="POST">
+            <button type="submit">
+              Toggle
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

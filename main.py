@@ -41,7 +41,11 @@ class Bet(db.Model):
     bet_type = db.Column(db.String(255), default="Qualifying")
     profit_loss_bookie = db.Column(db.Float, default=0.0)
     profit_loss_exchange = db.Column(db.Float, default=0.0)
-    completed = db.Column(db.Boolean, default=False)
+    event = db.Column(db.String(255))
+    exchange = db.Column(db.String(255))
+    bookie = db.Column(db.String(255))
+
+
 
     def __repr__(self): 
         return f"<Bet {self.id} - {self.user_email} - {self.bet_date}>"
@@ -50,9 +54,11 @@ class Bet(db.Model):
 
 def get_user_email(authed):
     if not authed:
+        print("Not authed")
         return None
 
     if "user_email" not in session:
+        print("Not in session")
         resp = google.get("/oauth2/v2/userinfo")
         if not resp.ok:
             return None
@@ -61,7 +67,7 @@ def get_user_email(authed):
 
         session['user_email'] = user_info['email']
         print(session['user_email'])
-        return session['user_email']
+    return session['user_email']
 
 
 
@@ -108,23 +114,28 @@ def calculate_route():
 # Bet Tracking Routes
 # --------------------------------------------
 
+@app.route("/delete_bet/<int:bet_id>", methods=["POST"])
+def delete_bet(bet_id):
+    pass
+
 @app.route("/tracker", methods=["GET", "POST"])
 def tracker_page():
     if not google.authorized:
         return redirect(url_for("google.login"))
-    # user is authorized, so proceed
+    # user is authorised, so proceed
     user_email = get_user_email(google.authorized)
-
+    
     if request.method == "POST":
+        # extract form data
         bet_date = request.form.get("bet_date","").strip()
         bet_type = request.form.get("bet_type","Qualifying")
         profit_loss_bookie = request.form.get("profit_loss_bookie","0")
         profit_loss_exchange = request.form.get("profit_loss_exchange","0")
-
+        bookie = request.form.get("bookie_name")
+        exchange = request.form.get("exchange_name")
+        event = request.form.get("event_name")
         if not bet_date:
             bet_date = str(datetime.date.today())
-
-        
         try:
             pl_bookie = float(profit_loss_bookie)
         except ValueError:
@@ -135,48 +146,36 @@ def tracker_page():
         except ValueError:
             pl_exchange = 0.0
 
-
         user_bet = Bet(
             user_email=user_email,
             bet_date=bet_date,
             bet_type=bet_type,
             profit_loss_bookie=pl_bookie,
             profit_loss_exchange=pl_exchange,
-            completed = False
+            bookie=bookie,
+            exchange=exchange,
+            event=event
         )
+
         db.session.add(user_bet)
         db.session.commit()
+        return redirect(url_for("tracker_page"))
 
     all_user_bets = Bet.query.filter_by(user_email=user_email).all()
 
     total_cumulative_profit = 0.0
     for bet in all_user_bets:
-        if bet.completed:
-            total_cumulative_profit += (bet.profit_loss_exchange + bet.profit_loss_bookie)
+        total_cumulative_profit += (bet.profit_loss_exchange + bet.profit_loss_bookie)
 
     return render_template(
         "tracker.html",
         bets=all_user_bets,
-        total = total_cumulative_profit
+        total = total_cumulative_profit,
+        user_email = user_email
     )
-
-@app.route("/toggle_bet/<int:bet_index>", methods=["POST"])
-def toggle_bet(bet_index):
-    user_email = get_current_user_email()
-    if not user_email:
-        return redirect(url_for("google.login"))
-
-    bet = Bet.query.get_or_404(bet_id)
-    # Ensure the bet belongs to the current user
-    if bet.user_email != user_email:
-        return "Unauthorized", 403
-
-    # Flip the completion status
-    bet.is_completed = not bet.is_completed
-    db.session.commit()
-    return redirect(url_for("tracker_page"))
 
 if __name__ == "__main__":
     with app.app_context():
+        db.drop_all() # debug
         db.create_all()
     app.run(host='0.0.0.0', port=5001, debug=True)

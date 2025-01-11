@@ -8,7 +8,8 @@
 </head>
 <body>
   <h1>Matched Betting Results</h1>
-
+  
+  <h3>Logged in as: {{user_email}}</h3>
   <!-- Display cumulative profit for completed bets -->
   <p class="cumulative-profit">
     <strong>Total Cumulative Profits (Completed Bets):</strong> 
@@ -24,7 +25,7 @@
       <small>(Defaults to today's date if left blank)</small>
     </div>
 
-    <!-- BET TYPE (radio buttons) -->
+    <!-- BET TYPE radio* -->
     <div>
       <label>Bet Type:</label>
       <label>
@@ -36,6 +37,37 @@
       <label>
         <input type="radio" name="bet_type" value="Arb"> Arb
       </label>
+    </div>
+
+    <div>
+      <label for="bookie_name">Bookie Name</label>
+      <input 
+        type="text" 
+        id="bookie_name" 
+        name="bookie_name" 
+        placeholder="Bet365, SkyBet, etc."
+      >
+    </div>
+
+    <div>
+      <label for="exchange_name">Exchange Name</label>
+      <input 
+        type="text" 
+        id="exchange_name" 
+        name="exchange_name" 
+        placeholder="Smarkets, Matchbook, etc."
+      >
+    </div>
+
+
+    <div>
+      <label for="event_name">Event</label>
+      <input 
+        type="text" 
+        id="event_name" 
+        name="event_name" 
+        placeholder="e.g., Man Utd vs Liverpool"
+      >
     </div>
 
     <!-- PROFIT/LOSS for BOOKIE -->
@@ -61,7 +93,6 @@
         placeholder="e.g. -1.00 or 4.20"
       >
     </div>
-
     <button type="submit">Add Bet</button>
   </form>
 
@@ -70,28 +101,31 @@
     <thead>
       <tr>
         <th>Date</th>
+        <th>Bookie</th>
+        <th>Exchange</th>
+        <th>Event</th>
         <th>Bet Type</th>
         <th>Bookie P/L</th>
         <th>Exchange P/L</th>
-        <th>Completed?</th>
-        <th>Toggle</th>
+
       </tr>
     </thead>
     <tbody>
       {% for bet in bets %}
       <tr>
         <td>{{ bet.bet_date }}</td>
+        <td>{{ bet.bookie }}</td>
+        <td>{{ bet.exchange }}  </td>
+        <td>{{ bet.event}}</td>
         <td>{{ bet.bet_type }}</td>
         <td>{{ bet.profit_loss_bookie }}</td>
         <td>{{ bet.profit_loss_exchange }}</td>
-        <td>{{ "Yes" if bet.is_completed else "No" }}</td>
-        <td>
           <!-- A form posting to toggle the bet's completion status -->
-          <form action="{{ url_for('toggle_bet', bet_index=loop.index0) }}" method="POST">
-            <button type="submit">
-              Toggle
-            </button>
-          </form>
+        
+        <td>
+          <form action="{{url_for('delete_bet', bet_id=bet.id)}}" method="POST">
+            <button type="submit" onclick="return confirm('You sure?')">Delete</button>
+        </td>
         </td>
       </tr>
       {% endfor %}

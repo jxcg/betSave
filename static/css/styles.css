@@ -25,6 +25,7 @@ h1 {
 }
 
 .bet-form input[type="number"],
+.bet-form input[type="text"],
 .bet-form input[type="date"] {
   width: 200px;
   padding: 6px;

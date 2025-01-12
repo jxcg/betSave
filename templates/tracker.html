@@ -3,29 +3,42 @@
 <head>
     <meta charset="UTF-8" />
     <title>Matched Betting Results</title>
-    <!-- Link external CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+
+
 <body>
+  <nav class="navbar">
+    <a class="navbar-brand" href="/">BetView</a>
+</nav>
+
+
+<div class="container">
   <h1>Matched Betting Results</h1>
   
   <h3>Logged in as: {{user_email}}</h3>
-  <!-- Display cumulative profit for completed bets -->
+  <!-- Show cumulative profit for completed bets -->
   <p class="cumulative-profit">
     <strong>Total Cumulative Profits (Completed Bets):</strong> 
-    {{ total }}
+    £{{ total }}
   </p>
 
-  <!-- Form to add a new bet -->
+
+  <form action="{{ url_for('calculate_route') }}" method="POST" style="text-align: center; margin-bottom: 20px;">
+    <button class="btn-calculate" type="submit">Calculator</button>
+  
+  </form>
+
   <form method="POST" class="bet-form">
-    <!-- DATE -->
+    <!-- date -->
     <div>
       <label for="bet_date">Date:</label>
       <input type="date" id="bet_date" name="bet_date" />
       <small>(Defaults to today's date if left blank)</small>
     </div>
 
-    <!-- BET TYPE radio* -->
+    
+    <!-- bet type radio* -->
     <div>
       <label>Bet Type:</label>
       <label>
@@ -70,43 +83,49 @@
       >
     </div>
 
-    <!-- PROFIT/LOSS for BOOKIE -->
+
     <div>
-      <label for="profit_loss_bookie">Profit/Loss (Bookie):</label>
+      <label for="back_odds">Back Odds:</label>
       <input 
         type="number" 
         step="0.01" 
-        id="profit_loss_bookie" 
-        name="profit_loss_bookie" 
-        placeholder="e.g. -2.00 or 3.50"
+        id="back_odds" 
+        name="back_odds" 
+        placeholder="Odds at Bookie"
       >
     </div>
 
-    <!-- PROFIT/LOSS for EXCHANGE -->
+
     <div>
-      <label for="profit_loss_exchange">Profit/Loss (Exchange):</label>
+      <label for="lay_odds">Lay Odds:</label>
       <input 
         type="number" 
         step="0.01" 
-        id="profit_loss_exchange" 
-        name="profit_loss_exchange" 
-        placeholder="e.g. -1.00 or 4.20"
+        id="lay_odds" 
+        name="lay_odds" 
+        placeholder="Odds at Exchange"
       >
     </div>
     <button type="submit">Add Bet</button>
   </form>
 
-  <!-- TABLE of bets -->
+  <!-- table of bets -->
   <table class="bets-table">
     <thead>
       <tr>
         <th>Date</th>
         <th>Bookie</th>
+        <th>Back Odds</th>
+        <th>Back Stake</th>
+        <th>Lay Odds</th>
+        <th>Lay Stake</th>
+
         <th>Exchange</th>
         <th>Event</th>
         <th>Bet Type</th>
         <th>Bookie P/L</th>
         <th>Exchange P/L</th>
+        <th>Options</th>
 
       </tr>
     </thead>
@@ -115,21 +134,41 @@
       <tr>
         <td>{{ bet.bet_date }}</td>
         <td>{{ bet.bookie }}</td>
+        <td>{{ bet.back_odds}} </td>
+        <td>{{ bet.back_stake}} </td>
+        <td>{{ bet.lay_odds}} </td>
+        <td>{{ bet.lay_stake}} </td>
         <td>{{ bet.exchange }}  </td>
         <td>{{ bet.event}}</td>
-        <td>{{ bet.bet_type }}</td>
-        <td>{{ bet.profit_loss_bookie }}</td>
-        <td>{{ bet.profit_loss_exchange }}</td>
-          <!-- A form posting to toggle the bet's completion status -->
-        
+        <td class="{% if bet.bet_type == 'Qualifying' %}qualifying
+        {% elif bet.bet_type == 'Free' %} free
+        {% elif bet.bet_type == 'Arb' %} arb
+      {% endif %}">{{ bet.bet_type }}</td>
+        <td>£{{ bet.profit_loss_bookie }}</td>
+        <td>£{{ bet.profit_loss_exchange }}</td>
+
         <td>
-          <form action="{{url_for('delete_bet', bet_id=bet.id)}}" method="POST">
-            <button type="submit" onclick="return confirm('You sure?')">Delete</button>
+          <div class="btn-group">
+            <form action="{{url_for('delete_bet', bet_id=bet.id)}}" method="POST" style="display: inline;">
+              <button class="btn-delete" type="submit">Delete</button>
+            </form>
+        
+            <form action="{{url_for('edit_bet', bet_id=bet.id)}}" method="POST" style="display: inline;">
+              <button class="btn-edit" type="submit">Lay Win</button>
+            </form>
+
+                    
+            <form action="{{url_for('edit_bet', bet_id=bet.id)}}" method="POST" style="display: inline;">
+              <button class="btn-edit" type="submit">Back Win</button>
+            </form>
+          </div>
         </td>
+        
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
+  </html>
 </body>
-</html>

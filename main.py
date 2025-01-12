@@ -36,11 +36,15 @@ db = SQLAlchemy(app)
 class Bet(db.Model):
     __tablename__ = "bets"
     id = db.Column(db.Integer, primary_key=True)
+    back_stake = db.Column(db.Float, default=0.00)
+    lay_stake = db.Column(db.Float, default=0.00)
+    back_odds = db.Column(db.Float, default=0.00)
+    lay_odds = db.Column(db.Float, default=0.00)
     user_email = db.Column(db.String(255), nullable=False)
     bet_date = db.Column(db.String, nullable=False)
     bet_type = db.Column(db.String(255), default="Qualifying")
-    profit_loss_bookie = db.Column(db.Float, default=0.0)
-    profit_loss_exchange = db.Column(db.Float, default=0.0)
+    profit_loss_bookie = db.Column(db.Float, default=0.00)
+    profit_loss_exchange = db.Column(db.Float, default=0.00)
     event = db.Column(db.String(255))
     exchange = db.Column(db.String(255))
     bookie = db.Column(db.String(255))
@@ -116,7 +120,32 @@ def calculate_route():
 
 @app.route("/delete_bet/<int:bet_id>", methods=["POST"])
 def delete_bet(bet_id):
-    pass
+    print("deleting:", bet_id)
+    user_email = get_user_email(google.authorized)
+    if not user_email:
+        return redirect(url_for("google.login"))
+    bet = Bet.query.get_or_404(bet_id)
+    if bet.user_email != user_email:
+        return "Unauthorized", 403
+
+    db.session.delete(bet)
+    db.session.commit()
+    return redirect(url_for("tracker_page"))
+
+
+@app.route("/edit_bet/<int:bet_id>", methods=["POST"])
+def edit_bet(bet_id):
+    print("editing:", bet_id)
+    user_email = get_user_email(google.authorized)
+    if not user_email:
+        return redirect(url_for("google.login"))
+    bet = Bet.query.get_or_404(bet_id)
+    if bet.user_email != user_email:
+        return "Unauthorized", 403
+
+    db.session.delete(bet)
+    db.session.commit()
+    return redirect(url_for("tracker_page"))
 
 @app.route("/tracker", methods=["GET", "POST"])
 def tracker_page():
@@ -129,29 +158,16 @@ def tracker_page():
         # extract form data
         bet_date = request.form.get("bet_date","").strip()
         bet_type = request.form.get("bet_type","Qualifying")
-        profit_loss_bookie = request.form.get("profit_loss_bookie","0")
-        profit_loss_exchange = request.form.get("profit_loss_exchange","0")
         bookie = request.form.get("bookie_name")
         exchange = request.form.get("exchange_name")
         event = request.form.get("event_name")
         if not bet_date:
             bet_date = str(datetime.date.today())
-        try:
-            pl_bookie = float(profit_loss_bookie)
-        except ValueError:
-            pl_bookie = 0.0
-
-        try:
-            pl_exchange = float(profit_loss_exchange)
-        except ValueError:
-            pl_exchange = 0.0
 
         user_bet = Bet(
             user_email=user_email,
             bet_date=bet_date,
             bet_type=bet_type,
-            profit_loss_bookie=pl_bookie,
-            profit_loss_exchange=pl_exchange,
             bookie=bookie,
             exchange=exchange,
             event=event

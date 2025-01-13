@@ -23,21 +23,14 @@
     £{{ total }}
   </p>
 
-
-  <form action="{{ url_for('calculate_route') }}" method="POST" style="text-align: center; margin-bottom: 20px;">
-    <button class="btn-calculate" type="submit">Calculator</button>
-  
-  </form>
-
-  <form method="POST" class="bet-form">
-    <!-- date -->
+  <form method="POST" id="betForm" class="bet-form">
     <div>
       <label for="bet_date">Date:</label>
       <input type="date" id="bet_date" name="bet_date" />
       <small>(Defaults to today's date if left blank)</small>
     </div>
+  
 
-    
     <!-- bet type radio* -->
     <div>
       <label>Bet Type:</label>
@@ -106,7 +99,9 @@
         placeholder="Odds at Exchange"
       >
     </div>
-    <button type="submit">Add Bet</button>
+    <button type="submit" name="action" value="add_bet" class="btn-add">Add Bet</button>
+  </br>
+    <button type="submit" name="action" value="calculator" class="btn-calculate">Calculator</button>
   </form>
 
   <!-- table of bets -->

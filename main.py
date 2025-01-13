@@ -147,11 +147,19 @@ def edit_bet(bet_id):
     db.session.commit()
     return redirect(url_for("tracker_page"))
 
+"""
+@app.route('/bet_form', methods=["POST"])
+def handle_bet_form():
+    action = request.form.get("action")
+    if action == "add_bet":
+        return redirect(url_for)
+"""    
+
 @app.route("/tracker", methods=["GET", "POST"])
 def tracker_page():
     if not google.authorized:
         return redirect(url_for("google.login"))
-    # user is authorised, so proceed
+
     user_email = get_user_email(google.authorized)
     
     if request.method == "POST":
@@ -161,6 +169,10 @@ def tracker_page():
         bookie = request.form.get("bookie_name")
         exchange = request.form.get("exchange_name")
         event = request.form.get("event_name")
+        back_odds = request.form.get("back_odds")
+        lay_odds = request.form.get("lay_odds")
+        #calculate back_stake = request.form.get("back_stake")
+        #calc lay_stake = request.form.get("lay_stake")   
         if not bet_date:
             bet_date = str(datetime.date.today())
 
@@ -170,12 +182,18 @@ def tracker_page():
             bet_type=bet_type,
             bookie=bookie,
             exchange=exchange,
+            back_odds=back_odds,
             event=event
         )
 
         db.session.add(user_bet)
         db.session.commit()
+        print("bet added to db")
         return redirect(url_for("tracker_page"))
+
+    """
+    Query to get all bets from DB for the user
+    """
 
     all_user_bets = Bet.query.filter_by(user_email=user_email).all()
 
@@ -189,6 +207,12 @@ def tracker_page():
         total = total_cumulative_profit,
         user_email = user_email
     )
+
+
+@app.route('/bet_form', methods=["POST"])
+def handle_bet_form():
+    action = request.form.get("action")
+    pass
 
 if __name__ == "__main__":
     with app.app_context():

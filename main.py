@@ -1,9 +1,10 @@
-from src.engine import calculate
+from src.engine import Wager
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
+import math
 import os
 import yaml
 import datetime
@@ -61,6 +62,8 @@ class Bet(db.Model):
     event                   = db.Column(db.String(255))
     exchange                = db.Column(db.String(255))
     bookie                  = db.Column(db.String(255))
+    back_commission         = db.Column(db.String(255))
+    lay_commission          = db.Column(db.String(255))
 
 
 
@@ -164,21 +167,27 @@ def edit_bet(bet_id):
 
 @app.route("/tracker", methods=["GET", "POST"])
 def tracker_page():
+    free_bet_condition = False
     if not google.authorized:
         return redirect(url_for("google.login"))
 
     user_email = get_user_email(google.authorized)
     
     if request.method == "POST":
+
         # extract form data
+        result          = request.form
+        print(result)
         bet_date        = request.form.get("bet_date","").strip()
-        bet_type        = request.form.get("bet_type","Qualifying")
-        bookie          = request.form.get("bookie_name")
-        exchange        = request.form.get("exchange_name")
-        event           = request.form.get("event_name")
-        back_odds       = request.form.get("back_odds")
-        lay_odds        = request.form.get("lay_odds")
-        back_stake      = request.form.get("back_stake")
+        bet_type        = request.form.get("bet_type","Qualifying").strip()
+        bookie          = request.form.get("bookie_name").strip()
+        exchange        = request.form.get("exchange_name").strip()
+        event           = request.form.get("event_name").strip()
+        back_odds       = request.form.get("back_odds").strip()
+        lay_odds        = request.form.get("lay_odds").strip()
+        back_stake      = request.form.get("back_stake").strip()
+        back_commission = request.form.get("back_commission").strip()
+        lay_commission  = request.form.get("lay_commission").strip()
 
         if not back_odds:
             back_odds   = sanitise_floats(back_odds)
@@ -188,19 +197,29 @@ def tracker_page():
 
         if not bet_date:
             bet_date    = str(datetime.date.today())
+
+        if bet_type == "Free":
+            free_bet_condition = True
         
-        ## CALCULATE LAY STAKE automatically?
+        wager_object = Wager(float(back_stake), float(back_odds), 0, 0, float(lay_odds), free_bet_condition)
+
+        
+        ## CALCULATE LAY STAKE automatically
+
 
         user_bet = Bet(
-            user_email  = user_email,
-            back_stake  = back_stake,
-            lay_odds    = lay_odds,
-            bet_date    = bet_date,
-            bet_type    = bet_type,
-            bookie      = bookie,
-            exchange    = exchange,
-            back_odds   = back_odds,
-            event       = event
+            user_email      = user_email,
+            bookie          = bookie,
+            back_odds       = back_odds,
+            back_stake      = back_stake,
+            lay_odds        = lay_odds,
+            lay_stake       = round(wager_object.get_lay_stake(free_bet_condition), 2),
+            bet_date        = bet_date,
+            bet_type        = bet_type,
+            exchange        = exchange,
+            event           = event,
+            back_commission = back_commission,
+            lay_commission  = lay_commission
         )
 
         db.session.add(user_bet)
@@ -234,6 +253,7 @@ def handle_bet_form():
 
 if __name__ == "__main__":
     with app.app_context():
-        #db.drop_all() # debug
+        db.drop_all() # debug
         db.create_all()
     app.run(host='0.0.0.0', port=5001, debug=True)
+    

@@ -1,12 +1,11 @@
-class Bet:
+class Wager:
     def __init__(self, back_stake, back_odds, back_commission, lay_commission, lay_odds, free):
-        self.free               = free, # TRUE / FALSE
-        self.back_stake         = back_stake, # BACK BET is INTERCHANGEABLE to QUALIFYING BET OR FREE BET
-        self.back_odds          = back_odds,
-        self.back_commission    = back_commission,
-        self.lay_odds           = lay_odds,
+        self.free               = free # TRUE / FALSE
+        self.back_stake         = back_stake # BACK BET is INTERCHANGEABLE to QUALIFYING BET OR FREE BET
+        self.back_odds          = back_odds
+        self.back_commission    = back_commission
+        self.lay_odds           = lay_odds
         self.lay_commission     = lay_commission
-        pass
 
 
     """
@@ -85,18 +84,3 @@ class Bet:
         return (
             self.back_stake
         )
-
-    
-
-    
-
-
-
-
-
-
-
-    """
-    Free bet - SR
-    """
-

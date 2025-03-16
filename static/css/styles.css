@@ -1,252 +1,366 @@
-/* static/css/style.css */
+/* Reset & Variables */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-/* Basic reset */
+:root {
+  /* Modern Blue-Based Color Scheme */
+  --primary: #4a90e2;          /* Blue */
+  --primary-dark: #357ab8;     /* Darker blue for hover */
+  --secondary: #333333;        /* Dark text */
+  --background: #ffffff;       /* White background */
+  --light: #f8f9fa;            /* Very light grey */
+  --muted: #888888;           /* Muted text */
+  --accent: #f5a623;           /* Accent color (orange) */
+  --table-header-bg: var(--primary);
+  --table-row-alt: #f0f4f8;     /* Light alternate row color */
+  --font-base: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Basic Reset & Body */
 body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: var(--font-base);
   margin: 0;
+  background-color: var(--light);
+  color: var(--secondary);
+  line-height: 1.6;
 }
 
-.qualifying {
-  background-color: #ffb993;
-}
-
-.free {
-  background-color: #85FFBD;
-}
-
-.arb {
-  background-image: linear-gradient(to right, #f8b0ff, #c2b0ff, #ff9393);
-}
-
+/* Navbar */
 .navbar {
   display: flex;
   align-items: center;
   padding: 0 20px;
-  margin: 0;
   height: 85px;
-  background-color: #f8f9fa;
+  background-color: var(--light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar .navbar-brand {
-  font-size: 20px;
-  font-weight: bold;
-  color: #212529; /* Dark grey for the text */
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--secondary);
   text-decoration: none;
 }
 
+/* Container */
 .container {
-  margin: 20px;
+  margin: 20px auto;
+  max-width: 1200px;
+  padding: 0 15px;
 }
 
+/* Headings & Profit Text */
 h1 {
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--secondary);
+  font-size: 2rem;
 }
 
-.cumulative-profit {
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+
+
+/* Bet Type Labels */
+.qualifying {
+  background-color: #ffb993;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--secondary);
 }
 
-/* Form container styling */
+.free {
+  background-color: #85FFBD;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--secondary);
+}
+
+.arb {
+  background-image: linear-gradient(to right, #f8b0ff, #c2b0ff, #ff9393);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--secondary);
+}
+
+/* Modern Form - Two-Column Layout */
 .bet-form {
-  max-width: 400px;
+  max-width: 700px;
   margin: 0 auto;
-  background-color: #ffffff;
+  background-color: var(--background);
   padding: 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  font-family: 'Arial', sans-serif;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
   font-size: 14px;
 }
 
-/* Form label styling */
-.bet-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 600;
-  color: #333;
+/* Full-width Elements in Form */
+.bet-form h3,
+.bet-form p,
+.bet-form .button-group {
+  grid-column: 1 / -1;
 }
 
-/* Form inputs */
+/* Form Labels */
+.bet-form label {
+  display: block;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 5px;
+}
+
+/* Form Inputs */
 .bet-form input[type="text"],
 .bet-form input[type="number"],
 .bet-form input[type="date"] {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
-  box-sizing: border-box;
   transition: border-color 0.3s ease;
 }
 
-/* Input focus */
 .bet-form input:focus {
-  border-color: #009879;
+  border-color: var(--primary);
   outline: none;
 }
 
-/* Radio buttons */
-.bet-form div label {
-  font-weight: normal;
-  margin-right: 15px;
-  color: #555;
+/* Radio Buttons in a Row */
+.bet-form .radio-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  grid-column: 1 / -1;
 }
 
 .bet-form input[type="radio"] {
   margin-right: 5px;
 }
 
-/* Small description text */
-.bet-form small {
-  display: block;
-  margin-top: -10px;
-  margin-bottom: 10px;
-  color: #888;
-  font-size: 12px;
+/* Button Row */
+.bet-form .button-group {
+  display: flex;
+  justify-content: space-between;
+  grid-column: 1 / -1;
 }
 
-/* Submit button */
-.bet-form button[type="submit"] {
-  display: block;
-  width: 100%;
-  background-color: #009879;
-  color: #ffffff;
+.bet-form button {
+  background-color: var(--primary);
+  color: var(--background);
   padding: 12px;
   border: none;
   font-size: 14px;
   border-radius: 4px;
   font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  margin: 5px;
   transition: background-color 0.3s ease;
 }
 
-
-/* Submit button hover */
-.bet-form button[type="submit"]:hover {
-  background-color: #6be14af6;
+.bet-form button:hover {
+  background-color: var(--primary-dark);
 }
 
-/* Responsive design */
+/* Responsive Form for Mobile */
 @media (max-width: 600px) {
   .bet-form {
-    padding: 15px;
-    font-size: 13px;
+    grid-template-columns: 1fr;
+    max-width: 100%;
   }
-
-  .bet-form button[type="submit"] {
-    padding: 10px;
+  .bet-form .button-group {
+    flex-direction: column;
   }
 }
 
+/* Modern Table Container with Rounded Corners */
+.bets-table-container {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-
+/* Modern Table Styles */
 .bets-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  table-layout: auto;
+  background-color: var(--background);
   margin: 20px 0;
-  font-size: 16px;
-  text-align: left;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 16px;
 }
 
-/* Table header */
-.bets-table thead tr {
-  background-color: #009879;
-  color: #ffffff;
-  text-align: left;
-}
-
-/* Table rows */
+/* Table Header & Cells */
 .bets-table th,
 .bets-table td {
-  padding: 12px 15px;
+  padding: 10px 15px;
+  text-align: center;
+  border: 1px solid #ddd;
+  white-space: nowrap;
 }
 
-/* Alternate row colors */
+/* Table Header Styling */
+.bets-table thead {
+  background-color: var(--table-header-bg);
+  color: var(--background);
+  font-weight: 600;
+}
+
+/* Rounded Corners for Header */
+.bets-table thead tr:first-child th:first-child {
+  border-top-left-radius: 8px;
+}
+.bets-table thead tr:first-child th:last-child {
+  border-top-right-radius: 8px;
+}
+
+/* Alternate Row Background */
 .bets-table tbody tr:nth-child(even) {
-  background-color: #f3f3f3;
+  background-color: var(--table-row-alt);
 }
 
-/* Hover effect */
-.bets-table tbody tr:hover {
-  background-color: #f1f1f1;
+/* Rounded Corners for Last Row */
+.bets-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+.bets-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
 }
 
-/* Highlight specific cell */
-.highlight {
-  background-color: yellow;
-  font-weight: bold;
-}
-
-/* Delete button styling */
-/* Style for the button container */
-.btn-group {
-  display: flex;
-  gap: 10px; /* Add space between buttons */
-}
-
-/* Delete button styling */
-.btn-delete {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-delete:hover {
-  background-color: #e60000;
-}
-
-/* Edit button styling */
-.btn-edit {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-edit:hover {
-  background-color: #3e8e41;
-}
-
-/* Responsive adjustments */
+/* Scrollable Table on Small Screens */
 @media (max-width: 768px) {
-  .btn-group {
-    flex-wrap: wrap; /* Wrap buttons if space is limited */
-    gap: 5px;
+  .bets-table-container {
+    overflow-x: auto;
   }
-
-  .btn-delete, .btn-edit {
-    font-size: 13px;
-    padding: 5px 10px;
-  }
-}
-
-/* Responsive table */
-@media (max-width: 768px) {
   .bets-table {
-    font-size: 59px;
+    font-size: 12px;
   }
-
   .bets-table th,
   .bets-table td {
     padding: 8px 10px;
   }
 }
 
-/* Sticky header for large tables */
+/* Table Button Group */
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-group button {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.btn-delete {
+  background-color: #ff4d4d;
+}
+
+.btn-delete:hover {
+  background-color: #e60000;
+}
+
+.btn-toggle-back-win {
+  background-color: #ffb444;
+}
+
+.btn-toggle-lay-win {
+  background-color: #835eff;
+}
+
+/* Consistent Table Button Sizing */
+.btn-delete,
+.btn-toggle-lay-win,
+.btn-toggle-back-win {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+/* Responsive Adjustments for Table Buttons */
+@media (max-width: 768px) {
+  .btn-group {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .btn-delete,
+  .btn-toggle-lay-win {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+}
+
+/* Sticky Table Header */
 .bets-table thead {
   position: sticky;
   top: 0;
   z-index: 2;
-  background-color: #009879;
+}
+
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--background);  /* uses your white background variable */
+  padding: 15px 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
+}
+
+.user-info .user-email,
+.user-info .user-profit {
+  color: var(--secondary); /* dark text */
+}
+
+.bet-info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--background);
+  padding: 15px 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
+}
+
+.bet-info span {
+  color: var(--secondary); /* uses your dark text variable */
+  flex: 1;
+  text-align: center;
+}
+
+/* Active state for Toggle Buttons */
+.btn-toggle-back-win.active {
+  background-color: #e68a00;
+  border-color: #e68a00;
+  box-shadow: 0 0 0 3px rgba(255, 180, 68, 0.5);
+  color: #fff;
+}
+
+.btn-toggle-lay-win.active {
+  background-color: #6a3de8; 
+  border-color: #6a3de8;
+  box-shadow: 0 0 0 3px rgba(131, 94, 255, 0.5);
+  color: #fff;
+}
+
+/* disabled buttons */
+.btn-toggle-back-win:disabled,
+.btn-toggle-lay-win:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

@@ -1,5 +1,5 @@
 from src.engine import Wager
-from flask import Flask, render_template, redirect, url_for, flash, request, session
+from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -46,6 +46,13 @@ app.config["SQLALCHEMY_DATABASE_URI"]           = config['database']['uri']
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]    = False
 db                                              = SQLAlchemy(app)
 
+default_back_comm = 0.00
+default_lay_comm = 2.00
+default_commission = {
+    "default_back_comm":0.00,
+    "default_lay_comm":2.00  
+}
+
 
 class Bet(db.Model):
     __tablename__ = "bets"
@@ -60,10 +67,11 @@ class Bet(db.Model):
     profit_loss_bookie      = db.Column(db.Float, default=0.00)
     profit_loss_exchange    = db.Column(db.Float, default=0.00)
     event                   = db.Column(db.String(255))
-    exchange                = db.Column(db.String(255))
     bookie                  = db.Column(db.String(255))
-    back_commission         = db.Column(db.String(255))
-    lay_commission          = db.Column(db.String(255))
+    back_commission         = db.Column(db.Float, default=0.00)
+    lay_commission          = db.Column(db.Float, default=2.00)
+    back_win                = db.Column(db.Boolean, default=False)
+    lay_win                 = db.Column(db.Boolean, default=False)
 
 
 
@@ -110,29 +118,31 @@ def get_started():
 
 @app.route("/logout")
 def logout():
+
     """
     Clear the session (so google.authorized becomes False).
     """
+
     session.clear()
     return redirect(url_for("home"))
 
 
-## Other Routes
+
 @app.route("/")
 def home():
+    
+    """
+    Home route to render login page
+    """
+
     return render_template("index.html", title="Home")
 
-@app.route("/calculate", methods=["POST"])
-def calculate_route():
-    try:
-        bet_type = request.form['bet_type']
-    except Exception as e:
-        print(e)
 
 
 # --------------------------------------------
 # Bet Tracking Routes
 # --------------------------------------------
+
 
 @app.route("/delete_bet/<int:bet_id>", methods=["POST"])
 def delete_bet(bet_id):
@@ -150,18 +160,58 @@ def delete_bet(bet_id):
     return redirect(url_for("tracker_page"))
 
 
-@app.route("/edit_bet/<int:bet_id>", methods=["POST"])
-def edit_bet(bet_id):
-    print("editing:", bet_id)
-    user_email = get_user_email(google.authorized)
-
-    if not user_email: return redirect(url_for("google.login"))
-    
+@app.route('/lay_bet_win/<int:bet_id>', methods=['POST'])
+def lay_bet_win(bet_id):
     bet = Bet.query.get_or_404(bet_id)
-    if bet.user_email != user_email: return "Unauthorized", 403
+    bet.lay_win = not bet.lay_win
 
-    db.session.delete(bet)
+    wager = Wager(
+        back_stake=bet.back_stake,
+        back_odds=bet.back_odds,
+        back_commission= bet.back_commission,
+        lay_commission= bet.lay_commission,
+        lay_odds=bet.lay_odds,
+        free=(bet.bet_type == "Free")
+    )
+
+    if bet.lay_win:
+        bet.profit_loss_exchange = wager.profit_if_lay_bet_wins()
+    
+    else:
+        bet.profit_loss_bookie = 0
+        bet.profit_loss_exchange = 0
+        
     db.session.commit()
+    return redirect(url_for("tracker_page"))
+
+
+@app.route('/back_bet_win/<int:bet_id>', methods=['POST'])
+def back_bet_win(bet_id):
+    bet = Bet.query.get_or_404(bet_id)
+    print('r',bet.back_win)
+
+    bet.back_win = not bet.back_win
+    wager = Wager (
+        back_stake = bet.back_stake,
+        back_odds = bet.back_odds,
+        back_commission= bet.back_commission,
+        lay_commission= bet.lay_commission,
+        lay_odds = bet.lay_odds,
+        free = (bet.bet_type == "Free")
+    )
+    if bet.back_win:
+        if bet.bet_type == "Free":
+            bet.profit_loss_bookie = wager.profit_free_bet_wins()
+        else:
+            bet.profit_loss_bookie = wager.profit_if_back_bet_wins()
+    else:
+        bet.profit_loss_bookie = 0
+        bet.profit_loss_exchange = 0
+
+
+    db.session.commit()
+
+    print('new back bet', bet.back_win)
     return redirect(url_for("tracker_page"))
 
 
@@ -181,7 +231,6 @@ def tracker_page():
         bet_date        = request.form.get("bet_date","").strip()
         bet_type        = request.form.get("bet_type","Qualifying").strip()
         bookie          = request.form.get("bookie_name").strip()
-        exchange        = request.form.get("exchange_name").strip()
         event           = request.form.get("event_name").strip()
         back_odds       = request.form.get("back_odds").strip()
         lay_odds        = request.form.get("lay_odds").strip()
@@ -201,25 +250,24 @@ def tracker_page():
         if bet_type == "Free":
             free_bet_condition = True
         
+        
         wager_object = Wager(float(back_stake), float(back_odds), 0, 0, float(lay_odds), free_bet_condition)
-
         
         ## CALCULATE LAY STAKE automatically
 
 
         user_bet = Bet(
-            user_email      = user_email,
-            bookie          = bookie,
-            back_odds       = back_odds,
-            back_stake      = back_stake,
-            lay_odds        = lay_odds,
-            lay_stake       = round(wager_object.get_lay_stake(free_bet_condition), 2),
-            bet_date        = bet_date,
-            bet_type        = bet_type,
-            exchange        = exchange,
-            event           = event,
-            back_commission = back_commission,
-            lay_commission  = lay_commission
+            user_email              = user_email,
+            bookie                  = bookie,
+            back_odds               = back_odds,
+            back_stake              = back_stake,
+            lay_odds                = lay_odds,
+            lay_stake               = round(wager_object.get_lay_stake(free_bet_condition), 2),
+            bet_date                = bet_date,
+            bet_type                = bet_type,
+            event                   = event,
+            back_commission         = back_commission,
+            lay_commission          = lay_commission
         )
 
         db.session.add(user_bet)
@@ -234,9 +282,7 @@ def tracker_page():
 
     all_user_bets               = Bet.query.filter_by(user_email=user_email).all()
     total_cumulative_profit     = 0.0
-    
-    for bet in all_user_bets:
-        total_cumulative_profit += (bet.profit_loss_exchange + bet.profit_loss_bookie)
+    total_cumulative_profit = sum(bet.profit_loss_exchange + bet.profit_loss_bookie for bet in all_user_bets)
 
     return render_template(
         "tracker.html",
@@ -251,9 +297,37 @@ def handle_bet_form():
     action = request.form.get("action")
     pass
 
+
+@app.route("/calculate_bet", methods=["POST"])
+def calculate_bet():
+    """API to return calculated bet values dynamically."""
+    try:
+        data = request.get_json()
+        print(data, 'data')
+
+        back_stake = float(data.get("back_stake", 0))
+        back_odds = float(data.get("back_odds", 1))
+        lay_odds = float(data.get("lay_odds", 1))
+        free_bet = data.get("bet_type", "Qualifying") == "Free"
+
+        wager = Wager(back_stake, back_odds, 0, 0, lay_odds, free_bet)
+        lay_stake = wager.get_lay_stake(free_bet)
+        profit_if_back_wins = wager.profit_if_back_bet_wins()
+        profit_if_lay_wins = wager.profit_if_lay_bet_wins()
+
+        return jsonify({
+            "lay_stake": round(lay_stake, 2),
+            "profit_if_back_wins": round(profit_if_back_wins, 2),
+            "profit_if_lay_wins": round(profit_if_lay_wins, 2)
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
 if __name__ == "__main__":
     with app.app_context():
-        db.drop_all() # debug
+        #db.drop_all() # debug
         db.create_all()
     app.run(host='0.0.0.0', port=5001, debug=True)
     

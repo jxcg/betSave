@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>BetView</h1>
-<p>X</p>
-<a href="{{ url_for('get_started')}}" class="btn btn-primary">Get Started</a>
+<section class="py-5" style="background: #ffffff;">
+    
+    <div class="container" style="max-width: 720px;">
+        
+        <h1 class="fw-bold mb-4" style="font-size: 2.5rem; color: #1f2937;">Record Your Arbs and Matched Bets</h1>
+        <p class="text-muted mb-5" style="font-size: 1.125rem;">Track your bets easily and efficiently. Stay organised and maximize your matched betting profits — all in one place.</p>
+        <a href="{{ url_for('get_started') }}" class="btn btn-success btn-lg px-5 py-3 shadow-sm">Get Started</a>
+    
+    </div>
+
+</section>
 {% endblock %}

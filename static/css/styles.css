@@ -6,18 +6,19 @@
 }
 
 :root {
-  /* Modern Blue-Based Color Scheme */
-  --primary: #4a90e2;          /* Blue */
-  --primary-dark: #357ab8;     /* Darker blue for hover */
-  --secondary: #333333;        /* Dark text */
-  --background: #ffffff;       /* White background */
-  --light: #f8f9fa;            /* Very light grey */
-  --muted: #888888;           /* Muted text */
-  --accent: #f5a623;           /* Accent color (orange) */
+  --primary: #10b981;          /* Emerald green */
+  --primary-dark: #059669;     /* Darker green */
+  --secondary: #1f2937;        /* Dark slate */
+  --background: #f9fafb;       /* Near-white */
+  --light: #ffffff;            /* White */
+  --muted: #6b7280;            /* Gray muted */
+  --accent: #f59e0b;           /* Golden amber */
   --table-header-bg: var(--primary);
-  --table-row-alt: #f0f4f8;     /* Light alternate row color */
+  --table-row-alt: #ecfdf5;    /* Very light green */
   --font-base: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+
+
 
 /* Basic Reset & Body */
 body {
@@ -154,7 +155,7 @@ h1 {
   padding: 12px;
   border: none;
   font-size: 14px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   flex: 1;
@@ -262,20 +263,20 @@ h1 {
 }
 
 .btn-delete {
-  background-color: #ff4d4d;
+  background-color: #f87171; /* Soft Red */
 }
-
 .btn-delete:hover {
-  background-color: #e60000;
+  background-color: #dc2626; /* Deep Red */
 }
 
 .btn-toggle-back-win {
-  background-color: #ffb444;
+  background-color: #10b981; /* Emerald Green */
 }
 
 .btn-toggle-lay-win {
-  background-color: #835eff;
+  background-color: #f59e0b; /* Golden Amber */
 }
+
 
 /* Consistent Table Button Sizing */
 .btn-delete,
@@ -345,20 +346,20 @@ h1 {
 
 /* Active state for Toggle Buttons */
 .btn-toggle-back-win.active {
-  background-color: #e68a00;
-  border-color: #e68a00;
-  box-shadow: 0 0 0 3px rgba(255, 180, 68, 0.5);
+  background-color: #059669; /* Dark Emerald */
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5); /* Green glow */
   color: #fff;
 }
 
 .btn-toggle-lay-win.active {
-  background-color: #6a3de8; 
-  border-color: #6a3de8;
-  box-shadow: 0 0 0 3px rgba(131, 94, 255, 0.5);
+  background-color: #f59e0b; /* Gold */
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5); /* Gold glow */
   color: #fff;
 }
 
-/* disabled buttons */
+/* Disabled state */
 .btn-toggle-back-win:disabled,
 .btn-toggle-lay-win:disabled {
   opacity: 0.6;

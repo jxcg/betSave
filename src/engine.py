@@ -21,6 +21,7 @@ class Wager:
         )
 
 
+
     def profit_if_back_bet_wins(self) -> float:
         """
         Calculates profit if the back bet wins.
@@ -57,8 +58,9 @@ class Wager:
         """
         Calculates profit when a free bet wins.
         :param stake_returned: Whether the free bet stake is returned.
-        :return: Profit amount.
+        :return Profit
         """
+
         lay_stake = self.get_lay_stake(True, stake_returned)
         return round(
             ((self.back_odds - 1) if not stake_returned else self.back_odds) * self.back_stake

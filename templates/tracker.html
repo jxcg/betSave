@@ -14,7 +14,7 @@
 
 <div class="user-info">
   <span class="user-email">Logged in as: <strong>{{ user_email }}</strong></span>
-  <span class="user-profit">Total Cumulative Profits (Completed Bets): <strong>£{{ total }}</strong></span>
+  <span class="user-profit">Total Cumulative Profits (Completed Bets): <strong>£{{ '%.2f' % total }}</strong></span>
 </div>
 
 
@@ -134,7 +134,7 @@
   </form>
 
 </br></br>
-<h3>Bet History</h3>
+<h3>History</h3>
 
   <!-- table of bets -->
   <table class="bets-table">
@@ -162,8 +162,8 @@
         <td>{{ bet.bookie }}</td>
         <td>{{ bet.back_odds}} </td>
         <td>{{ bet.lay_odds}} </td>
-        <td>£{{ bet.back_stake}} </td>
-        <td>£{{ bet.lay_stake}} </td>
+        <td>£{{ '%.2f' % bet.back_stake}} </td>
+        <td>£{{ '%.2f' % bet.lay_stake}} </td>
         <td class="{% if bet.bet_type == 'Qualifying' %}qualifying
         {% elif bet.bet_type == 'Free' %} free
         {% elif bet.bet_type == 'Arb' %} arb
